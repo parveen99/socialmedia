@@ -5,23 +5,10 @@ const signupschema = mongoose.Schema({
     email : {
         type : String,
         trim : true ,
-        validate: [
-            validator({
-              validator: 'isEmail',
-              message: 'Please enter valid email'
-            })
-          ],
-          required: true ,
-          unique : true
-    },
-
-    userName : {
-        type : String,
-        trim : true ,
-        required : true ,
+        required: true ,
         unique : true
     },
-
+    
     password :{
         type : String ,
         trim : true ,
@@ -39,7 +26,8 @@ const signupschema = mongoose.Schema({
         },
 
         phoneNumber : {
-            
+            type : Number ,
+            trim : true
         },
 
         DOB : {
