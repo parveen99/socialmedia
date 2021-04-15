@@ -15,10 +15,8 @@ const signupRoute = require('./routes/signup');
 app.use ('/signup' ,signupRoute);
 
 
-//Routes
-app.get('/',(req,res) =>{
-    res.send("This is home page");
-} );
+const loginRoute = require('./routes/login');
+app.use('/login' ,loginRoute);
 
 //connecting to Mongo DB
 mongoose.connect( process.env.DB_CONNECTION , { 
@@ -29,5 +27,4 @@ mongoose.connect( process.env.DB_CONNECTION , {
 );
 
 //Listening to server
-
 app.listen(3000);
