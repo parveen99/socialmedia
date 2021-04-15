@@ -8,21 +8,28 @@ const signupschema = mongoose.Schema({
         required: true ,
         unique : true
     },
+
+    userName : {
+        type : String,
+        unique : true
+    },
     
     password :{
         type : String ,
         trim : true ,
         default : 'social'
-    } ,
+    },
 
     PersonalInformation : {
         firstName : {
-            type : String,
-            required : true,
+            type : String ,
+            required : true ,
+            trim : true
         },
     
         lastName : {
-            type : String
+            type : String ,
+            trim : true
         },
 
         phoneNumber : {
@@ -33,7 +40,7 @@ const signupschema = mongoose.Schema({
         DOB : {
             type : Date ,
             trim : true ,
-            required : true 
+            required : true
         }
     },
 
