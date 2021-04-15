@@ -18,6 +18,22 @@ router.get('/' ,async (req,res) => {
     
 });
 
+//UPDATING PASSWORD
+router.patch('/update' ,async (req,res) => {
+    try{
+        const login = await Signupdetails.updateOne(
+            {userName : req.body.userName} ,
+            {$set:{password : req.body.password}}
+        );
+        res.json({message : "Password updated successfully"});
+    }
+    catch (err){
+        res.status(500).json({message : err});
+    }
+
+});
+
+
 
 //DELETING A USER
 router.delete('/:username' , async (req, res) => {
@@ -30,5 +46,7 @@ router.delete('/:username' , async (req, res) => {
     }
 
 });
+
+
 
 module.exports = router ;
