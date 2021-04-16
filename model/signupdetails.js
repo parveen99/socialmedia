@@ -20,7 +20,7 @@ const signupschema = mongoose.Schema({
         default : 'social'
     },
 
-    PersonalInformation : {
+    personalInformation : {
         firstName : {
             type : String ,
             required : true ,
@@ -43,8 +43,8 @@ const signupschema = mongoose.Schema({
             required : true
         }
     },
-
-    Address : {
+    
+    address : {
         street : {
             type : String,
             trim : true 
@@ -73,7 +73,8 @@ const signupschema = mongoose.Schema({
             required : true
         }
     }
-});
+},
+{timestamps : true}
+);
     
-
 module.exports = mongoose.model('signup' , signupschema);
