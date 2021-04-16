@@ -14,9 +14,8 @@ app.use(express.urlencoded({
 const signupRoute = require('./routes/signup');
 app.use ('/signup' ,signupRoute);
 
-
-const loginRoute = require('./routes/login');
-app.use('/login' ,loginRoute);
+const userRoute = require('./routes/user');
+app.use('/user' ,userRoute);
 
 //connecting to Mongo DB
 mongoose.connect( process.env.DB_CONNECTION , { 
