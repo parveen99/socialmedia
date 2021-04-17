@@ -33,14 +33,19 @@ const signupschema = mongoose.Schema({
         },
 
         phoneNumber : {
-            type : Number ,
-            trim : true
+            type : Array ,
+            minItems : 1 ,
+            maxItems : 2 
         },
 
         DOB : {
-            type : Date ,
+            type : String ,
             trim : true ,
             required : true
+        },
+
+        age : {
+            type : Number
         }
     },
     
