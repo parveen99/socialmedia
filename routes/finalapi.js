@@ -49,4 +49,24 @@ router.get('/status' , async (req,res) => {
     }
 });
 
+//SEARCH A USER 
+router.get('/searchuser',async (req,res) => {
+    try{
+        //case - sensitive search
+        //const User = await Signupdetails.find({userName: {$regex: req.body.userName}}); 
+
+        //case-insensitive search
+        const User = await Signupdetails.find({userName: {$regex: req.body.userName , $options : "i"}}); 
+        username_array = [];
+        for (i=0; i<User.length ;i++){
+            username_array.push(User[i].userName)
+        }
+        res.json(username_array);
+    } catch (err) {
+        res.json({message : err});
+    }
+});
+
+
+
 module.exports = router ;
