@@ -9,6 +9,15 @@ router.get('/user', async (req,res) => {
     try{
         const Post = await Postdetails.findOne({userName : req.body.userName});
         const User = await Signupdetails.findOne({userName : req.body.userName});
+        const AllPosts = await Postdetails.find();
+        Status_liked = [];
+        for (i=0; i<AllPosts.length; i++) {
+            for (j=0 ; j < AllPosts[i].likes.length ; j++){
+                if(AllPosts[i].likes[j] === req.body.userName) {
+                    Status_liked.push(AllPosts[i].status);
+                }
+            }
+        }
         User_Information = {
             account_creation : User.createdAt,
             unique_username : User.userName,
@@ -25,7 +34,8 @@ router.get('/user', async (req,res) => {
                 state : User.address.state ,
                 country : User.address.country
             } ,
-            status : Post.status
+            status : Post.status ,
+            Status_liked_by_user : Status_liked
         }
         res.json(User_Information);
     } catch (err) {
@@ -65,7 +75,6 @@ router.get('/searchuser',async (req,res) => {
 });
 
 //USERS OF AGE 18+ 
-
 router.get('/usersage18' , async (req,res) => {
     try{
         const User = await Signupdetails.find({"personalInformation.age" : {"$gte" : 18}});
