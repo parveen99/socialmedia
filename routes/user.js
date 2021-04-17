@@ -18,10 +18,10 @@ router.get('/' ,async (req,res) => {
 
         if(req.body.userName === login.userName || req.body.email === login.email){
             if(req.body.password ===login.password){
-                res.json({message : "Login Successfull"});
+                res.status(200).json({message : "Login Successfull"});
             }
             else{
-                res.json({message : "Invalid Password"});
+                res.status(400).json({message : "Invalid Password"});
             }
         }
     }
@@ -38,14 +38,14 @@ router.patch('/:username' ,async (req,res) => {
                 {userName : req.body.userName} ,
                 {$set:{password : req.body.password}}
             );
-            res.json({message : "Password updated successfully"});
+            res.status(200).json({message : "Password updated successfully"});
         }
         catch (err){
             res.status(500).json({message : err});
         }
     }
     else{
-        return res.json({message:"You can update only your password"});
+        return res.status(403).json({message:"You can update only your password"});
     }
 });
 
@@ -61,13 +61,12 @@ router.delete('/:username' , async (req, res) => {
         }
     }
     else{
-        return res.json({message : "You can only delete your account"});
+        return res.status(403).json({message : "You can only delete your account"});
     }
 });
 
 
 //UPDATING ANY INFORMATION
-
 router.patch("/updateany/:username" , async (req,res) => {
     if(req.body.userName === req.params.username){
         try{
@@ -81,7 +80,7 @@ router.patch("/updateany/:username" , async (req,res) => {
         }
     }
     else{
-        return res.json({message : "You can update only your account"});
+        return res.status(403).json({message : "You can update only your account"});
     }
 });
 
