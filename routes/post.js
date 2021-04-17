@@ -8,9 +8,8 @@ const router = express.Router();
 router.post('/', async(req,res) => {
     try{
         var newPost = await Postdetails(req.body);
-        var savedPost = await newPost.save();
-        res.status(201).json(savedPost);
-        //res.status(201).json({message : "Status posted successfully"});
+        await newPost.save();
+        res.status(201).json({message : "Status posted successfully"});
     }catch (err){
         res.status(500).json({message : err});
     }
@@ -19,28 +18,19 @@ router.post('/', async(req,res) => {
 //LIKE A POST
 router.put('/:username/like', async(req,res) => {
     try{
-        const Post = await Postdetails.findOne(req.params.username);
-        if(!post.likes.includes(req.body.userName)){
+        const Post = await Postdetails.findOne({userName :req.params.username});
+        if(!Post.likes.includes(req.body.userName)){
             await Post.updateOne({$push :{likes : req.body.userName}});
             res.status(200).json("You have liked this Status");
+        }
+        else {
+            return res.status(400).json("You have already liked this post");
         }
     }
     catch (err) {
         res.status(500).json(err);
     }
 });
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 module.exports = router ;
