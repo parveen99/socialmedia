@@ -17,6 +17,12 @@ app.use ('/signup' ,signupRoute);
 const userRoute = require('./routes/user');
 app.use('/user' ,userRoute);
 
+const postRoute = require('./routes/post');
+app.use('/post' , postRoute);
+
+const finalRoute = require('./routes/finalapi');
+app.use('/finalapi' , finalRoute);
+
 //connecting to Mongo DB
 mongoose.connect( process.env.DB_CONNECTION , { 
     useNewUrlParser: true , 
