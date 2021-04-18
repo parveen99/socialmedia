@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const arrayValidator = require ('mongoose-array-validator');
 
 const signupschema = mongoose.Schema({
 
@@ -24,7 +25,7 @@ const signupschema = mongoose.Schema({
         firstName : {
             type : String ,
             required : true ,
-            trim : true
+            trim : true 
         },
     
         lastName : {
@@ -35,7 +36,11 @@ const signupschema = mongoose.Schema({
         phoneNumber : {
             type : Array ,
             minItems : 1 ,
-            maxItems : 2 
+            maxItems : 2 ,
+            items : {
+                type : Number
+            },
+            uniqueItems:true
         },
 
         DOB : {
@@ -81,5 +86,6 @@ const signupschema = mongoose.Schema({
 },
 {timestamps : true}
 );
+signupschema.plugin(arrayValidator);
     
 module.exports = mongoose.model('signup' , signupschema);
