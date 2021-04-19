@@ -21,10 +21,10 @@ router.put('/:username/like', async(req,res) => {
         const Post = await Postdetails.findOne({userName :req.params.username});
         if(!Post.likes.includes(req.body.userName)){
             await Post.updateOne({$push :{likes : req.body.userName}});
-            res.status(200).json("You have liked this Status");
+            res.status(200).json({message:"You have liked this Status"});
         }
         else {
-            return res.status(400).json("You have already liked this post");
+            return res.status(400).json({message :"You have already liked this post"});
         }
     }
     catch (err) {
