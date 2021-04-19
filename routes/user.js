@@ -17,11 +17,16 @@ router.get('/' ,async (req,res) => {
         }
 
         if(req.body.userName === login.userName || req.body.email === login.email){
-            if(req.body.password ===login.password){
+            if(req.body.password === login.password){
+                try{
                 res.status(200).json({message : "Login Successfull"});
+                }
+                catch (err) {
+                    res.status(400).json({message : err});
+                }
             }
-            else{
-                res.status(400).json({message : "Invalid Password"});
+            else {
+                res.json({message : "Invalid Password"});
             }
         }
     }
