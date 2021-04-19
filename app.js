@@ -23,6 +23,10 @@ app.use('/post' , postRoute);
 const finalRoute = require('./routes/finalapi');
 app.use('/finalapi' , finalRoute);
 
+app.get('/' , (req,res) => {
+  res.send('Hi,welcome to social media');
+});
+
 //connecting to Mongo DB
 mongoose.connect( process.env.DB_CONNECTION , { 
     useNewUrlParser: true , 
