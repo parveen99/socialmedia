@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+//var validate = require('mongoose-validator');
 
 const postschema = mongoose.Schema({ 
     userName :{
@@ -6,9 +7,12 @@ const postschema = mongoose.Schema({
         required : true
     },
     status : {
-        type : String,
-        max: 150 ,
-        required : true
+        type : Array ,
+        items : {
+            type : String ,
+            max: 20 ,
+            required : true
+        },
     },
     likes : {
         type : Array ,
@@ -18,8 +22,10 @@ const postschema = mongoose.Schema({
 { timestamps :{ createdAt: 'created_at',updatedAt: 'updated_at' }}
 );
 
-postschema.path("status").validate(function(v){
-    return v.length <=150;
+// var stringValidator = [ validate({validator : 'isLength' , arguments : [1,150] , message : 'Max size is 150 characters'})]
+postschema.path('status').validate(function(v){
+    console.log(v);
+    return v.length <=20;
 },"The maximum length is 150 ");
 
 module.exports = mongoose.model('Post' , postschema);
