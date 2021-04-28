@@ -1,5 +1,5 @@
 
-let postDetails = require('../Model/postDetails');
+let postDetails = require('../Model/Postdetails');
 let statusDetails = require('../Model/Statusdetails');
 
 //CREATE A POST
