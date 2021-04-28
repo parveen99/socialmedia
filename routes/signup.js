@@ -1,12 +1,14 @@
-const { json } = require('body-parser');
-const express = require('express');
-const Signupdetails = require('../Model/Signupdetails');
-const router = express.Router();
+
+let signupDetails = require('../Model/signupDetails');
 
 //USER SIGNUP
-router.post('/' , async (req,res) => {
+async function getSignup (req,res) {
     try{
-        if(req.body.email && req.body.personalInformation.DOB){
+        let emailExist = await signupDetails.findOne({email : req.body.email});
+        if(emailExist){
+            res.status(409).json({message : "Email already exists ! Signup with a different EmailID"});
+        }
+        else if(req.body.email && req.body.personalInformation.DOB){
             email = req.body.email;
             DOB = req.body.personalInformation.DOB ;
             function calculateAge(DOB){
@@ -14,7 +16,7 @@ router.post('/' , async (req,res) => {
                 var ageDate = new Date(ageDifMs);
                 return Math.abs(ageDate.getUTCFullYear() - 1970);
             }
-            const signupdetails = new Signupdetails({
+            let signupnew = new signupDetails({
                 email : req.body.email ,
                 userName : email.substring(0,email.lastIndexOf("@")),
                 personalInformation : {
@@ -32,22 +34,21 @@ router.post('/' , async (req,res) => {
                     country : req.body.address.country
                 }
             });
-            userName = signupdetails.userName
-            password =signupdetails.password
+            userName = signupnew.userName
+            password = signupnew.password
             try {
-                await signupdetails.save() 
+                await signupnew.save() 
                 res.status(201).json({USERNAME : userName , PASSWORD : password });
                 } catch (err) {
                     res.status(500).json({message : err});
                 }
         }
-        else{
+        else {
             res.status(400).json({message : "Email ID / DOB not given in data"});
         }
     }catch(err) {
         res.status(400).json({message:err});
-    }
-    
-});
+    }  
+};
 
-module.exports = router ;
+module.exports = {getSignup} ;
