@@ -1,28 +1,36 @@
-const { json } = require('body-parser');
-const express = require('express');
-const Postdetails = require('../Model/Postdetails');
-const Signupdetails = require('../Model/Signupdetails');
-const router = express.Router();
+
+let postDetails = require('../Model/postDetails');
+let signupDetails = require('../Model/signupDetails');
+let statusDetails = require('../Model/Statusdetails');
 
 //USER INFORMATION
-router.get('/user', async (req,res) => {
+async function usersInfo (req,res) {
     if(!req.body.userName){
         res.json({message : "Please enter username"});
     }
     else{
         try{
-            const Post = await Postdetails.findOne({userName : req.body.userName});
-            const User = await Signupdetails.findOne({userName : req.body.userName});
-            const AllPosts = await Postdetails.find();
-            Status_liked = [];
-            for (i=0; i<AllPosts.length; i++) {
-                for (j=0 ; j < AllPosts[i].likes.length ; j++){
-                    if(AllPosts[i].likes[j] === req.body.userName) {
-                        Status_liked.push(AllPosts[i].status);
-                    }
-                }
+            let Posts = await postDetails.find({userName : req.body.userName});
+            let User = await signupDetails.findOne({userName : req.body.userName});
+            let Status = await statusDetails.find();
+
+            //Status posted by the User
+            userStatus = [];
+            for (let i=0; i<Posts.length ; i++){
+                userStatus.push(Posts[i].status);
             }
-            User_Information = {
+
+            //Status liked by the User
+            statusLiked = []
+            for (let i=0; i < Status.length; i++) {
+              for (let j=0 ; j < Status[i].likes.length ; j++){
+                  if(Status[i].likes[j] === req.body.userName){
+                      statusLiked.push(Status[i].status);
+                  }
+              }
+            }
+
+            userInformation = {
                 account_creation : User.createdAt,
                 unique_username : User.userName,
                 personalInformation: {
@@ -38,70 +46,72 @@ router.get('/user', async (req,res) => {
                     state : User.address.state ,
                     country : User.address.country
                 } ,
-                status : Post.status ,
-                Status_liked_by_user : Status_liked
+                statusPosted : userStatus,
+                statusLiked : statusLiked
             }
-            res.json(User_Information);
+
+            res.status(200).json(userInformation);
         } catch (err) {
-            res.json({message : err});
+            res.status(500).json({message : err});
         }
     }
-});
+};
 
 //STATUS INFORMATION
-router.get('/status' , async (req,res) => {
-    if(!req.body.userName){
-        res.json({message : "Please enter username"});
+async function statusInfo (req,res)  {
+    if(!req.body.status){
+        res.status(400).json({message : "Please enter status"});
     }
     else{
         try{
-            const Post = await Postdetails.findOne({userName : req.body.userName});
-            Status_Information = {
-                number_of_likes : Post.likes.length ,
+            let Post = await postDetails.findOne({status : req.body.status});
+            let Status = await statusDetails.findOne({status : req.body.status});
+            statusInformation = {
+                number_of_likes : Status.likes.length ,
                 status_creation : Post.created_at ,
-                status_author : Post.userName ,
-                likes : Post.likes
+                status_author : Status.userName ,
+                likes : Status.likes
             }
-            res.status(200).json(Status_Information);
+            res.status(200).json(statusInformation);
         }catch (err) {
             res.json({message : err});
         }
     }
-});
+};
 
 //SEARCH A USER 
-router.get('/searchuser',async (req,res) => {
+async function searchUser (req,res)  {
     if(!req.body.userName){
-        res.json({message : "Please enter username"});
+        res.status(400).json({message : "Please enter username"});
     }
     else{
         try{
             //case-insensitive search
-            const User = await Signupdetails.find({userName: {$regex: req.body.userName , $options : "i"}}); 
-            username_array = [];
-            for (i=0; i<User.length ;i++){
-                username_array.push(User[i].userName)
+            let User = await signupDetails.find({userName: {$regex: req.body.userName , $options : "i"}}); 
+            usernameArray = [];
+            for (let i=0; i<User.length ;i++){
+                usernameArray.push(User[i].userName)
             }
-            res.json(username_array);
+            res.json(usernameArray);
         } catch (err) {
             res.json({message : err});
         }
     }
-});
+};
 
 //USERS OF AGE 18+ 
-router.get('/usersage18' , async (req,res) => {
+async function usersAge18info (req,res)  {
     try{
-        const User = await Signupdetails.find({"personalInformation.age" : {"$gte" : 18}});
-        username_array = [];
-        for (i=0; i<User.length ;i++){
-            username_array.push(User[i].userName)
+        let User = await signupDetails.find({"personalInformation.age" : {"$gte" : 18}});
+        usernameArray = [];
+        for (let i=0; i<User.length ;i++){
+            usernameArray.push(User[i].userName)
         }
-        res.json(username_array);
+        res.json(usernameArray);
     }
     catch (err) {
         res.json({message : err});
     }
-});
+};
 
-module.exports = router ;
+module.exports ={usersInfo,statusInfo,searchUser,usersAge18info} ;
