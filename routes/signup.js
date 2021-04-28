@@ -1,5 +1,5 @@
 
-let signupDetails = require('../Model/signupDetails');
+const signupDetails = require('../Model/Signupdetails');
 
 //USER SIGNUP
 async function getSignup (req,res) {
