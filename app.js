@@ -13,9 +13,6 @@ app.use(express.urlencoded({
   extended: true
 }));
 
-app.get('/' , (res) => {
-      res.send('Hi,welcome to social media');
-});
 
 app.route('/signup')
         .post(signup.getSignup);
