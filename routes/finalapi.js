@@ -1,7 +1,7 @@
 
-let postDetails = require('../Model/postDetails');
-let signupDetails = require('../Model/signupDetails');
-let statusDetails = require('../Model/Statusdetails');
+const postDetails = require('../Model/Postdetails');
+const signupDetails = require('../Model/Signupdetails');
+const statusDetails = require('../Model/Statusdetails');
 
 //USER INFORMATION
 async function usersInfo (req,res) {
