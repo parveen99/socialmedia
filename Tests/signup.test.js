@@ -7,19 +7,19 @@ chai.should()
 
 chai.use(chaiHttp);
 
-// signupsuccess = {
-//     email : "baby@gmail.com" ,
-//     personalInformation : {
-//       firstName : "baby" ,
-//       phoneNumber : [7636546353] ,
-//       DOB : "1999.09.06" ,
-//     },
-//     address : {
-//       pincode : 987654,
-//       state : "Kerala" ,
-//       country : "India"
-//     }
-//   }
+signupsuccess = {
+    email : "baby@gmail.com" ,
+    personalInformation : {
+      firstName : "baby" ,
+      phoneNumber : [7636546353] ,
+      DOB : "1999.09.06" ,
+    },
+    address : {
+      pincode : 987654,
+      state : "Kerala" ,
+      country : "India"
+    }
+  }
 
   signupduplicate = {
     email : "comb@gmail.com" ,
@@ -51,7 +51,7 @@ chai.use(chaiHttp);
 
   
   signupnodob= {
-    email : "comb@gmail.com" ,
+    email : "apple@gmail.com" ,
     personalInformation : {
       firstName : "comb" ,
       phoneNumber : [7636546353] 
@@ -75,38 +75,38 @@ afterEach(function(){
     currentresponse = null ;
 })
 describe('API Signup', ()=> {
-    // describe ("GET /", ()=> {
-    //     it("Signup successfull", (done) =>{
-    //         chai.request(app)
-    //         .post("/signup")
-    //         .send(signupsuccess)
-    //         .end((err,response)=>{
-    //         currentresponse = response;
-    //         response.should.have.status(201);
-    //         response.body.should.be.a('object');
-    //         response.body.should.have.property('USERNAME').eq(signupsuccess.email.substring(0,email.lastIndexOf("@")))
-    //         response.body.should.have.property('PASSWORD').eq('social');
-    //         done();
-    //         });
-    //     });
-    // });
+    describe ("GET /", ()=> {
+        it("Signup successfull", (done) =>{
+            chai.request(app)
+            .post("/signup")
+            .send(signupsuccess)
+            .end((err,response)=>{
+            currentresponse = response;
+            response.should.have.status(201);
+            response.body.should.be.a('object');
+            response.body.should.have.property('USERNAME').eq(signupsuccess.email.substring(0,email.lastIndexOf("@")))
+            response.body.should.have.property('PASSWORD').eq('social');
+            done();
+            });
+        });
+    });
 
-    describe ("POST /", ()=> {
+    describe ("POST Signup/", ()=> {
         it("Signup fail - Duplicate", (done) =>{
             chai.request(app)
             .post("/signup")
             .send(signupduplicate)
             .end((err,response)=>{
             currentresponse = response;
-            response.should.have.status(500);
+            response.should.have.status(409);
             response.body.should.be.a('object');
-            response.body.should.have.nested.property('message.name').eq('MongoError');
+            response.body.should.have.property('message').eq('Email already exists ! Signup with a different EmailID');
             done();
             });
         });
     });
 
-    describe ("POST /", ()=> {
+    describe ("POST Signup/", ()=> {
         it("Signup fail - Bad request Wrong API", (done) =>{
             chai.request(app)
             .post("/signups")
@@ -119,7 +119,7 @@ describe('API Signup', ()=> {
         });
     });
 
-    describe ("POST /", ()=> {
+    describe ("POST Signup/", ()=> {
         it("Signup fail - No email", (done) =>{
             chai.request(app)
             .post("/signup")
@@ -134,7 +134,7 @@ describe('API Signup', ()=> {
         });
     });
 
-    describe ("POST /", ()=> {
+    describe ("POST Signup/", ()=> {
         it("Signup fail - No DOB", (done) =>{
             chai.request(app)
             .post("/signup")
