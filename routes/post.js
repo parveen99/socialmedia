@@ -1,36 +1,40 @@
-const { json } = require('body-parser');
-const express = require('express');
-const Postdetails = require('../Model/Postdetails');
-const router = express.Router();
 
+let postDetails = require('../Model/postDetails');
+let statusDetails = require('../Model/Statusdetails');
 
 //CREATE A POST
-router.post('/', async(req,res) => {
+async function createPost (req,res) {
     try{
-        var newPost = await Postdetails(req.body);
+        var newPost = await postDetails(req.body);
         await newPost.save();
         res.status(201).json({message : "Status posted successfully"});
-    }catch (err){
+    } catch (err){
         res.status(500).json({message : err});
     }
-});
+};
 
 //LIKE A POST
-router.put('/:username/like', async(req,res) => {
+async function likeStatus (req,res) {
     try{
-        const Post = await Postdetails.findOne({userName :req.params.username});
-        if(!Post.likes.includes(req.body.userName)){
-            await Post.updateOne({$push :{likes : req.body.userName}});
-            res.status(200).json({message:"You have liked this Status"});
+        const existsStatus = await statusDetails.findOne({userName : req.body.userName , status : req.body.status});
+        if(existsStatus){
+            if(!existsStatus.likes.includes(req.body.likes)){
+                await existsStatus.updateOne({$push :{likes : req.body.likes}});
+                res.status(200).json({message:"You have liked this Status"});
+            }
+            else{
+                res.status(400).json({message:"You have already liked this Status"});
+            }
         }
-        else {
-            return res.status(400).json({message :"You have already liked this post"});
+        else{
+            var newStatuslike = await statusDetails(req.body);
+            await newStatuslike.save();
+            res.status(201).json({message:"You are the first like for this status"});
         }
     }
     catch (err) {
         res.status(500).json(err);
     }
-});
+};
 
-
-module.exports = router ;
+module.exports = { createPost , likeStatus } ;
