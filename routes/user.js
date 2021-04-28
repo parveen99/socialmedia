@@ -1,5 +1,5 @@
 
-let signupDetails = require('../Model/signupDetails');
+const signupDetails = require('../Model/Signupdetails');
 
 //LOGIN USING USERNAME / PASSWORD
 async function login (req,res) {
