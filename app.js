@@ -54,6 +54,6 @@ mongoose.connect( process.env.DB_CONNECTION , {
 );
 
 //Listening to server
-app.listen(3002);
+app.listen(3003);
 
 module.exports = app;
