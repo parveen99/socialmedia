@@ -33,8 +33,8 @@ describe('API Final', ()=> {
               response.body.should.have.property('account_creation');
               response.body.should.have.property('unique_username');
               response.body.should.have.property('personalInformation');
-              response.body.should.have.property('status');
-              response.body.should.have.property('Status_liked_by_user');
+              response.body.should.have.property('statusPosted');
+              response.body.should.have.property('statusLiked');
               done();
             });
         });
@@ -72,7 +72,7 @@ describe('API Final', ()=> {
         it("Get User Details Successfully", (done) =>{
             chai.request(app)
             .get("/finalapi/status")
-            .send({userName : "Sameena"})
+            .send({status : "Hi, Admissions are open"})
             .end((err,response)=>{
             currentresponse = response;
               response.should.have.status(200);
@@ -106,11 +106,74 @@ describe('API Final', ()=> {
             .send()
             .end((err,response)=>{
                 currentresponse = response;
-                response.body.should.have.property('message').eq('Please enter username');
+                response.body.should.have.property('message').eq('Please enter status');
               done();
             });
         });
     });
 
 
+    describe ("GET SEARCH USER/", ()=> {
+        it("Get User Details Successfully", (done) => {
+            chai.request(app)
+            .get("/finalapi/searchuser")
+            .send({userName : "Sameena"})
+            .end((err,response)=>{
+              currentresponse = response;
+              response.should.have.status(200);
+              response.body.should.be.a('array');
+              done();
+            });
+        });
+    });
+
+    describe ("GET SEARCH USER/", ()=> {
+        it("Bad Request", (done) =>{
+            chai.request(app)
+            .get("/finalapis/searchuser")
+            .send({userName : "Sameena"})
+            .end((err,response)=>{
+              currentresponse = response;
+              response.should.have.status(404);
+              done();
+            });
+        });
+    });
+
+    describe ("GET SEARCH USER/", ()=> {
+        it("No userName", (done) =>{
+            chai.request(app)
+            .get("/finalapi/searchuser")
+            .send()
+            .end((err,response)=>{
+                currentresponse = response;
+                response.body.should.have.property('message').eq('Please enter username');
+              done();
+            });
+        });
+    });
+
+    describe ("GET USERS ABOVE 18/", ()=> {
+        it("Get User Details Successfully", (done) => {
+            chai.request(app)
+            .get("/finalapi/usersage18")
+            .end((err,response)=>{
+              currentresponse = response;
+              response.body.should.be.a('array');
+              done();
+            });
+        });
+    });
+
+    describe ("GET USERS ABOVE 18/", ()=> {
+        it("Bad Request", (done) =>{
+            chai.request(app)
+            .get("/finalapis/usersage18")
+            .end((err,response)=>{
+              currentresponse = response;
+              response.should.have.status(404);
+              done();
+            });
+        });
+    });
 });
