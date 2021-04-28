@@ -1,8 +1,11 @@
-const express = require('express');
-const app = express();
-const mongoose = require('mongoose');
+let express = require('express');
+let app = express();
+let signup = require('./routes/signup');
+let signupuser = require('./routes/user');
+let post = require('./routes/post');
+let final = require('./routes/finalapi');
+let mongoose = require('mongoose');
 require('dotenv/config');
-
 
 //parsing the data into json
 app.use(express.json());
@@ -10,22 +13,40 @@ app.use(express.urlencoded({
   extended: true
 }));
 
-//importing routes
-const signupRoute = require('./routes/signup');
-app.use ('/signup' ,signupRoute);
-
-const userRoute = require('./routes/user');
-app.use('/user' ,userRoute);
-
-const postRoute = require('./routes/post');
-app.use('/post' , postRoute);
-
-const finalRoute = require('./routes/finalapi');
-app.use('/finalapi' , finalRoute);
-
-app.get('/' , (req,res) => {
-  res.send('Hi,welcome to social media');
+app.get('/' , (res) => {
+      res.send('Hi,welcome to social media');
 });
+
+app.route('/signup')
+        .post(signup.getSignup);
+
+app.route('/user')
+        .get(signupuser.login);
+
+app.route('/user/:username')
+        .patch(signupuser.updatePassword)
+        .delete(signupuser.deleteUser);
+
+app.route('/user/updateany/:username')
+          .patch(signupuser.updateAnyinfo);
+
+app.route('/post')
+          .post(post.createPost);
+
+app.route('/post/like')
+          .post(post.likeStatus);
+
+app.route('/finalapi/user')
+          .get(final.usersInfo);
+
+app.route('/finalapi/status')
+          .get(final.statusInfo);
+
+app.route('/finalapi/searchuser')
+          .get(final.searchUser);
+
+app.route('/finalapi/usersage18')
+          .get(final.usersAge18info);
 
 //connecting to Mongo DB
 mongoose.connect( process.env.DB_CONNECTION , { 
@@ -36,4 +57,6 @@ mongoose.connect( process.env.DB_CONNECTION , {
 );
 
 //Listening to server
-app.listen(3001);
+app.listen(3002);
+
+module.exports = app;
