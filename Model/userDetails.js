@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const arrayValidator = require ('mongoose-array-validator');
 
-const signupschema = mongoose.Schema({
+const userschema = mongoose.Schema({
 
     email : {
         type : String,
@@ -84,8 +84,15 @@ const signupschema = mongoose.Schema({
         }
     }
 },
-{timestamps : true}
+{
+    timestamps : true
+}
+// {
+//     strict : false ,
+//     collection : 'user'
+// }
+
 );
-signupschema.plugin(arrayValidator);
+userschema.plugin(arrayValidator);
     
-module.exports = mongoose.model('signup' , signupschema);
+module.exports = mongoose.model('user' , userschema);
