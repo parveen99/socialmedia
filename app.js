@@ -1,9 +1,5 @@
 let express = require('express');
 let app = express();
-let signup = require('./routes/signup');
-let signupuser = require('./routes/user');
-let post = require('./routes/post');
-let final = require('./routes/finalapi');
 let mongoose = require('mongoose');
 require('dotenv/config');
 
@@ -14,38 +10,17 @@ app.use(express.urlencoded({
 }));
 
 
-app.route('/signup')
-        .post(signup.getSignup);
+//Importing Routes
+let userRoute = require('./routes/userAPI');
+app.use('/user',userRoute);
 
-app.route('/user')
-        .get(signupuser.login);
+let postRoute = require('./routes/postAPI');
+app.use('/post',postRoute);
 
-app.route('/user/:username')
-        .patch(signupuser.updatePassword)
-        .delete(signupuser.deleteUser);
+let DBOperationUsingAPIRoute = require('./routes/DBOperationUsingAPI');
+app.use('/DBOperationUsingAPI',DBOperationUsingAPIRoute);
 
-app.route('/user/updateany/:username')
-          .patch(signupuser.updateAnyinfo);
-
-app.route('/post')
-          .post(post.createPost);
-
-app.route('/post/like')
-          .post(post.likeStatus);
-
-app.route('/finalapi/user')
-          .get(final.usersInfo);
-
-app.route('/finalapi/status')
-          .get(final.statusInfo);
-
-app.route('/finalapi/searchuser')
-          .get(final.searchUser);
-
-app.route('/finalapi/usersage18')
-          .get(final.usersAge18info);
-
-//connecting to Mongo DB
+//Connecting to Mongo DB
 mongoose.connect( process.env.DB_CONNECTION , { 
     useNewUrlParser: true , 
     useUnifiedTopology: true 
@@ -54,6 +29,4 @@ mongoose.connect( process.env.DB_CONNECTION , {
 );
 
 //Listening to server
-app.listen(3003);
-
-module.exports = app;
+app.listen(3002);
