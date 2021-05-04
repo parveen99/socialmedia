@@ -1,9 +1,10 @@
-
-let postDetails = require('../Model/Postdetails');
-let statusDetails = require('../Model/Statusdetails');
+let express = require('express');
+let router = express.Router();
+let postDetails = require('../Model/postDetails');
+let statusDetails = require('../Model/statusDetails');
 
 //CREATE A POST
-async function createPost (req,res) {
+router.post('/' ,async (req,res) => {
     try{
         var newPost = await postDetails(req.body);
         await newPost.save();
@@ -11,10 +12,10 @@ async function createPost (req,res) {
     } catch (err){
         res.status(500).json({message : err});
     }
-};
+});
 
 //LIKE A POST
-async function likeStatus (req,res) {
+router.post('/like' ,async (req,res) => {
     try{
         const existsStatus = await statusDetails.findOne({userName : req.body.userName , status : req.body.status});
         if(existsStatus){
@@ -35,6 +36,7 @@ async function likeStatus (req,res) {
     catch (err) {
         res.status(500).json(err);
     }
-};
+});
 
-module.exports = { createPost , likeStatus } ;
+
+module.exports = router;
