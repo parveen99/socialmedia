@@ -11,6 +11,13 @@ const statusschema = mongoose.Schema({
     likes : {
         type : Array
     }
-});
+},
+// {
+//     strict : false ,
+//     collection : 'status'
+// }
+);
 
-module.exports = mongoose.model('Status' , statusschema);
+
+//module.exports.statusschema = status ;
+module.exports = mongoose.model('status' , statusschema);
