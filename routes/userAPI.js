@@ -1,9 +1,12 @@
 
 let express = require('express');
 let router = express.Router();
-var validator = require("email-validator");
+let validator = require("email-validator");
+let jwt = require('jsonwebtoken');
+require('dotenv/config');
 let postDetails = require('../Model/postDetails');
 let userDetails = require('../Model/userDetails');
+let auth = require('../routes/auth');
 
 //USER SIGNUP
 router.post('/signup' ,async (req,res) => {
@@ -43,7 +46,7 @@ router.post('/signup' ,async (req,res) => {
                     await signupNew.save() 
                     res.status(201).json({USERNAME : userName , PASSWORD : password });
                     } catch (err) {
-                        res.status(500).json({message : err});
+                        res.status(500).json({message : err.message});
                     }
             }
             else{
@@ -55,7 +58,7 @@ router.post('/signup' ,async (req,res) => {
         }
     }
     catch(err) {
-        res.status(400).json({message:err});
+        res.status(400).json({message:err.message});
     }  
 });
 
@@ -66,7 +69,16 @@ router.get('/login' ,async (req,res) => {
         if(checkUserFromDBUsingEmail){
             if(req.body.email === checkUserFromDBUsingEmail.email){
                 if(req.body.password === checkUserFromDBUsingEmail.password){
-                    res.status(200).json({message : "Login Successfull"});
+                    let token = jwt.sign(
+                        {_id: checkUserFromDBUsingEmail._id},
+                        process.env.TOKEN_SECRET
+                    );
+
+                    msg = {
+                        message : "Login Successfull" ,
+                        token : token
+                    }
+                    res.header('auth-token',token).send(msg);
                 }
                 else {
                     res.status(401).json({message : "Password Incorrect"});
@@ -82,7 +94,15 @@ router.get('/login' ,async (req,res) => {
         if(checkUserFromDBUsingUsername){
             if(req.body.userName === checkUserFromDBUsingUsername.userName){
                 if(req.body.password === checkUserFromDBUsingUsername.password){
-                    res.status(200).json({message : "Login Successfull"});
+                    let token = jwt.sign(
+                        {_id: checkUserFromDBUsingUsername._id},
+                        process.env.TOKEN_SECRET
+                    );
+                    msg = {
+                        message : "Login Successfull" ,
+                        token : token
+                    }
+                    res.header('auth-token',token).send(msg);
                 }
                 else {
                     res.status(401).json({message : "Password Incorrect"});
@@ -96,7 +116,7 @@ router.get('/login' ,async (req,res) => {
 });
 
 //UPDATING PASSWORD
-router.patch('/updatePassword' ,async (req,res) => {
+router.patch('/updatePassword', auth ,async (req,res) => {
     if(!req.body.userName){
         res.status(400).json({message : "userName is required"});
     }
@@ -131,7 +151,7 @@ router.patch('/updatePassword' ,async (req,res) => {
 
 
 //UPDATING ANY INFORMATION
-router.patch('/updateUserInformation' ,async (req,res) => {
+router.patch('/updateUserInformation' ,auth , async (req,res) => {
     if(!req.body.userName){
         res.status(400).json({message : "userName is required"})
     }
@@ -156,7 +176,7 @@ router.patch('/updateUserInformation' ,async (req,res) => {
 
 
 //DELETING A USER
-router.delete('/deleteUser' ,async (req,res) => {
+router.delete('/deleteUser' ,auth, async (req,res) => {
     if(!req.body.userName){
         res.status(400).json({message : "userName is required"});
     }
@@ -178,7 +198,7 @@ router.delete('/deleteUser' ,async (req,res) => {
 });
 
 //GET USER INFORMATION
-router.get('/userInformation' ,async (req,res) => {
+router.get('/userInformation' ,auth, async (req,res) => {
     if(!req.body.userId){
         res.json({message : "Please enter userID"});
     }
@@ -247,7 +267,7 @@ router.get('/searchUser' ,async (req,res) => {
 });
 
 //users above AGE 18+ 
-router.get('/usersAboveAge18' ,async (req,res) => {
+router.get('/usersAboveAge18' ,auth, async (req,res) => {
     try{
         let user = await userDetails.find({"personalInformation.age" : {"$gte" : 18}});
         usernameArray = [];
@@ -272,7 +292,5 @@ function calculateAge(DOB){
 function emailValidator(email){
     return validator.validate(email);
 }
-
-//
 
 module.exports = router;
