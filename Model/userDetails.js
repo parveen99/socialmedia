@@ -2,7 +2,9 @@ const mongoose = require('mongoose');
 const arrayValidator = require ('mongoose-array-validator');
 
 const userschema = mongoose.Schema({
-
+    _id : {
+        type : String
+    },
     email : {
         type : String,
         trim : true ,
@@ -85,12 +87,9 @@ const userschema = mongoose.Schema({
     }
 },
 {
-    timestamps : true
+    timestamps : true ,
+    _id : false
 }
-// {
-//     strict : false ,
-//     collection : 'user'
-// }
 
 );
 userschema.plugin(arrayValidator);
