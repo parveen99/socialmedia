@@ -1,10 +1,11 @@
 let express = require('express');
 let router = express.Router();
-let userDetails = require('../Model/userDetails');
-let postDetails = require('../Model/postDetails');
+let userDetails = require('../model/userDetails');
+let postDetails = require('../model/postDetails');
+let auth = require('../routes/auth');
 
 //CREATE A POST
-router.post('/' ,async (req,res) => {
+router.post('/' ,auth ,async (req,res) => {
     try{
             let userCount = await postDetails.countDocuments({userId : req.body.userId });
             let userName = await userDetails.findOne({_id : req.body.userId},{userName : 1});
@@ -26,7 +27,7 @@ router.post('/' ,async (req,res) => {
 });
 
 //LIKE A POST
-router.post('/like' ,async (req,res) => {
+router.post('/like' ,auth,async (req,res) => {
     try{
         const existingPost = await postDetails.findOne({_id: req.body.postId});
         if(existingPost){
