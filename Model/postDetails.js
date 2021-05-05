@@ -1,7 +1,11 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
-const post = new Schema({ 
-    userName :{
+//const userschema = require('./userDetails');
+//ObjectId = userschema.ObjectId;
+const postschema = mongoose.Schema({
+    _id :{
+        type : String
+    },
+    userId :{
         type : String,
         required : true
     },
@@ -9,17 +13,20 @@ const post = new Schema({
         type : String ,
         max: 150 ,
         required : true
-    }
-},{
-        timestamps :{
-            createdAt: 'created_at',updatedAt: 'updated_at'
-        }
     },
-    {
-        strict : false ,
-        collection : 'post'
+    likes : {
+        type : Array,
+        default : []
     }
+},
+{
+    timestamps : true
+}
 );
 
+postschema.path('status').validate(function (v) {
+    return v.length <= 150;
+}, 'The maximum length is 150.');
 
-module.exports.schema = post ;
+//validator function 
+module.exports = mongoose.model('post' , postschema);
