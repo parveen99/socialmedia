@@ -7,8 +7,13 @@ let statusDetails = require('../Model/statusDetails');
 router.post('/' ,async (req,res) => {
     try{
         var newPost = await postDetails(req.body);
-        await newPost.save();
-        res.status(201).json({message : "Status posted successfully"});
+        if(req.body.status){
+            await newPost.save();
+            res.status(201).json({message : "Status posted successfully"});
+        }
+        else{
+            res.status(400).json({message:"Status is required"});
+        }
     } catch (err){
         res.status(500).json({message : err});
     }
@@ -17,10 +22,10 @@ router.post('/' ,async (req,res) => {
 //LIKE A POST
 router.post('/like' ,async (req,res) => {
     try{
-        const existsStatus = await statusDetails.findOne({userName : req.body.userName , status : req.body.status});
-        if(existsStatus){
-            if(!existsStatus.likes.includes(req.body.likes)){
-                await existsStatus.updateOne({$push :{likes : req.body.likes}});
+        const existingStatus = await statusDetails.findOne({userName : req.body.userName , status : req.body.status});
+        if(existingStatus){
+            if(!existingStatus.likes.includes(req.body.likes)){
+                await existingStatus.updateOne({$push :{likes : req.body.likes}});
                 res.status(200).json({message:"You have liked this Status"});
             }
             else{
