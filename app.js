@@ -1,7 +1,10 @@
 let express = require('express');
 let app = express();
 let mongoose = require('mongoose');
-require('dotenv/config');
+let dotenv = require('dotenv');
+
+
+dotenv.config();
 
 //parsing the data into json
 app.use(express.json());
@@ -17,8 +20,6 @@ app.use('/user',userRoute);
 let postRoute = require('./routes/postAPI');
 app.use('/post',postRoute);
 
-let DBOperationUsingAPIRoute = require('./routes/DBOperationUsingAPI');
-app.use('/DBOperationUsingAPI',DBOperationUsingAPIRoute);
 
 //Connecting to Mongo DB
 mongoose.connect( process.env.DB_CONNECTION , { 
@@ -29,4 +30,4 @@ mongoose.connect( process.env.DB_CONNECTION , {
 );
 
 //Listening to server
-app.listen(3002);
+app.listen(3002 , ()=> console.log("Server is Running"));
