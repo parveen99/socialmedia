@@ -1,9 +1,10 @@
+const e = require('express');
 let express = require('express');
 let router = express.Router();
 let userDetails = require('../Model/userDetails');
 
 //USER SIGNUP
-router.get('/signup' ,async (req,res) => {
+router.post('/signup' ,async (req,res) => {
     try{
         let emailExist = await userDetails.findOne({email : req.body.email});
         if(emailExist){
@@ -12,11 +13,6 @@ router.get('/signup' ,async (req,res) => {
         else if(req.body.email && req.body.personalInformation.DOB){
             let email = req.body.email;
             let DOB = req.body.personalInformation.DOB ;
-            function calculateAge(DOB){
-                var ageDifMs = Date.now() - DOB.getTime();
-                var ageDate = new Date(ageDifMs);
-                return Math.abs(ageDate.getUTCFullYear() - 1970);
-            }
             let signupNew = new userDetails({
                 email : req.body.email ,
                 userName : email.substring(0,email.lastIndexOf("@")),
@@ -35,8 +31,8 @@ router.get('/signup' ,async (req,res) => {
                     country : req.body.address.country
                 }
             });
-            userName = signupNew.userName
-            password = signupNew.password
+            let userName = signupNew.userName
+            let password = signupNew.password
             try {
                 await signupNew.save() 
                 res.status(201).json({USERNAME : userName , PASSWORD : password });
@@ -55,37 +51,37 @@ router.get('/signup' ,async (req,res) => {
 //LOGIN USING USERNAME / PASSWORD
 router.get('/login' ,async (req,res) => {
     if(req.body.email){
-        var login = await userDetails.findOne({email : req.body.email});
-        if(!login){
-            res.status(400).json({message : "User not found! Invalid emailID"});
-        }
-    else if(req.body.userName){
-        var login = await userDetails.findOne({userName : req.body.userName});
-        if(!login){
-            res.status(400).json({message : "User not found! Invalid user"});
-        }
-    
-    if(login){
-    if (req.body.email){
-            if(req.body.email === login.email && req.body.password === login.password){
-                res.status(200).json({message : "Login Successfull"}); 
-                }
-            else {
-                res.status(401).json({message : "Email / Password Incorrect"});
-                }
-        }
-
-    else if(req.body.userName){
-            if(req.body.userName === login.userName && req.body.password === login.password){
+        var checkUserFromDBUsingEmail = await userDetails.findOne({email : req.body.email});
+        if(checkUserFromDBUsingEmail){
+            if(req.body.email === checkUserFromDBUsingEmail.email){
+                if(req.body.password === checkUserFromDBUsingEmail.password){
                     res.status(200).json({message : "Login Successfull"});
                 }
-            else {
-                res.status(401).json({message : "UserName / Password Incorrect"});
+                else {
+                    res.status(401).json({message : "Password Incorrect"});
                 }
+            }
+        }
+        else{
+            res.status(400).json({message : "User not found! Invalid emailID"});
         }
     }
+    else if(req.body.userName){
+        var checkUserFromDBUsingUsername = await userDetails.findOne({userName : req.body.userName});
+        if(checkUserFromDBUsingUsername){
+            if(req.body.userName === checkUserFromDBUsingUsername.userName){
+                if(req.body.password === checkUserFromDBUsingUsername.password){
+                    res.status(200).json({message : "Login Successfull"});
+                }
+                else {
+                    res.status(401).json({message : "Password Incorrect"});
+                }
+            }
+        }
+        else{
+            res.status(400).json({message : "User not found! Invalid Username"});
+        }
     }
-}
 });
 
 //UPDATING PASSWORD
@@ -93,29 +89,46 @@ router.patch('/updatePassword' ,async (req,res) => {
     if(!req.body.userName){
         res.status(400).json({message : "userName is required"});
     }
+    else if(!req.body.oldPassword){
+        res.status(400).json({message : "OldPassword is required to update"});
+    }
+    else if(!req.body.newPassword){
+        res.status(400).json({message : "Please enter NewPassword"});
+    }
+    else if(req.body.oldPassword === req.body.newPassword){
+        res.status(400).json({message : "OldPassword and NewPassword are same"});
+    }
     else{
-        try{
-            await userDetails.updateOne(
-                {userName : req.body.userName} ,
-                {$set:{password : req.body.password}}
-            );
+        const validUser = await userDetails.findOne({userName : req.body.userName ,password : req.body.oldPassword});
+        if(validUser){
+            try{
+                await userDetails.updateOne(
+                    {userName : req.body.userName} ,
+                    {$set:{password : req.body.newPassword}}
+                );
                 res.status(200).json({message : "Password updated successfully"});
             }
             catch (err){
                 res.status(500).json({message : err});
             }
         }
+        else{
+            res.status(400).json({message : "User not found! Invalid Credentials"});
+        }
+    }
 });
 
 
 
 
 //UPDATING ANY INFORMATION
-router.patch('/updateUserinformation' ,async (req,res) => {
+router.patch('/updateUserInformation' ,async (req,res) => {
     if(!req.body.userName){
         res.status(400).json({message : "userName is required"})
     }
-    else {
+    else{
+        const validUser = await userDetails.findOne({userName : req.body.userName ,password : req.body.password});
+        if(validUser){
             try{
                 await userDetails.findOneAndUpdate(
                     {userName:req.body.userName},
@@ -126,6 +139,10 @@ router.patch('/updateUserinformation' ,async (req,res) => {
                 res.status(500).json({message : err});
             }
         }
+        else{
+            res.status(400).json({message : "User not found! Invalid Credentials"});
+        }
+    }
 });
 
 
@@ -135,9 +152,10 @@ router.delete('/deleteUser' ,async (req,res) => {
         res.status(400).json({message : "userName is required"});
     }
     else{
-        if(req.body.userName === req.params.username){
+        const validUser = await userDetails.findOne({userName : req.body.userName ,password : req.body.password});
+        if(validUser){
             try{
-                await userDetails.deleteOne({userName : req.params.username });
+                await userDetails.deleteOne({userName : req.body.userName });
                 res.status(200).json({message : "User removed successfully"});
             }
             catch (err){
@@ -145,9 +163,16 @@ router.delete('/deleteUser' ,async (req,res) => {
             }
         }
         else{
-            return res.status(403).json({message : "You can only delete your account"});
+            return res.status(400).json({message : "User not found! Invalid Credentials"});
         }
     }
 });
+
+//Calcuate Age from DOB
+function calculateAge(DOB){
+    var ageDifMs = Date.now() - DOB.getTime();
+    var ageDate = new Date(ageDifMs);
+    return Math.abs(ageDate.getUTCFullYear() - 1970);
+}
 
 module.exports = router;
