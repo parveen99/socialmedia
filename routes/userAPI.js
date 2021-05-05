@@ -1,7 +1,8 @@
-const e = require('express');
+
 let express = require('express');
 let router = express.Router();
 var validator = require("email-validator");
+let postDetails = require('../Model/postDetails');
 let userDetails = require('../Model/userDetails');
 
 //USER SIGNUP
@@ -16,9 +17,11 @@ router.post('/signup' ,async (req,res) => {
             if(validEmail === true){
                 let email = req.body.email;
                 let DOB = req.body.personalInformation.DOB ;
+                let name =  email.substring(0,email.lastIndexOf("@"))
                 let signupNew = new userDetails({
                     email : req.body.email ,
                     userName : email.substring(0,email.lastIndexOf("@")),
+                    _id: name,
                     personalInformation : {
                         firstName : req.body.personalInformation.firstName ,
                         lastName : req.body.personalInformation.lastName ,
@@ -171,6 +174,90 @@ router.delete('/deleteUser' ,async (req,res) => {
         else{
             return res.status(400).json({message : "User not found! Invalid Credentials"});
         }
+    }
+});
+
+//GET USER INFORMATION
+router.get('/userInformation' ,async (req,res) => {
+    if(!req.body.userId){
+        res.json({message : "Please enter userID"});
+    }
+    else{
+        try{
+            let post = await postDetails.find({userId : req.body.userId},{status : 1});
+            let user = await userDetails.findOne({_id : req.body.userId});
+            let postLike = await postDetails.find({likes : req.body.userId} , {status : 1});
+
+            //status posted by the user
+            let userStatus = [];
+            for (let i=0; i<post.length ; i++){
+                    userStatus.push(post[i].status);
+            }
+
+            //status liked by the user
+            let statusLiked = []
+            for (let i=0; i < postLike.length; i++) {
+                statusLiked.push(postLike[i].status);
+            }
+            userInformation = {
+                accountCreation : user.createdAt,
+                uniqueusername : user.userName,
+                personalInformation: {
+                    firstName : user.personalInformation.firstName ,
+                    lastName : user.personalInformation.lastName ,
+                    phoneNumber : user.personalInformation.phoneNumber ,
+                    DOB : user.personalInformation.DOB
+                } ,
+                address : {
+                    street : user.address.street ,
+                    city : user.address.city ,
+                    pincode : user.address.pincode ,
+                    state : user.address.state ,
+                    country : user.address.country
+                } ,
+                statusPosted : userStatus,
+                statusLiked : statusLiked
+            }
+
+            res.status(200).json(userInformation);
+        } catch (err) {
+            res.status(500).json({message : err});
+        }
+    }
+});
+
+//SEARCH user
+router.get('/searchUser' ,async (req,res) => {
+    if(!req.body.userName){
+        res.status(400).json({message : "Please enter username"});
+    }
+    else{
+        try{
+            //case-insensitive search
+            let user = await userDetails.find({userName: {$regex: req.body.userName , $options : "i"}}); 
+            usernameArray = [];
+            for (let i=0; i<user.length ;i++){
+                usernameArray.push(user[i].userName)
+            }
+            res.json(usernameArray);
+        } catch (err) {
+            res.json({message : err});
+        }
+    }
+});
+
+//users above AGE 18+ 
+router.get('/usersAboveAge18' ,async (req,res) => {
+    try{
+        let user = await userDetails.find({"personalInformation.age" : {"$gte" : 18}});
+        usernameArray = [];
+        for (let i=0; i<user.length ;i++){
+            usernameArray.push(user[i].userName)
+        }
+        res.status(200).json(usernameArray);
+    }
+    catch (err) {
+        res.status(500).json({message : err});
     }
 });
 
