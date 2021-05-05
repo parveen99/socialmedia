@@ -4,8 +4,8 @@ let router = express.Router();
 let validator = require("email-validator");
 let jwt = require('jsonwebtoken');
 require('dotenv/config');
-let postDetails = require('../Model/postDetails');
-let userDetails = require('../Model/userDetails');
+let postDetails = require('../model/postDetails');
+let userDetails = require('../model/userDetails');
 let auth = require('../routes/auth');
 
 //USER SIGNUP
