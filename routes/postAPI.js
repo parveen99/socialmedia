@@ -1,7 +1,7 @@
 let express = require('express');
 let router = express.Router();
-let userDetails = require('../model/userDetails');
-let postDetails = require('../model/postDetails');
+let userDetails = require('../Model/userDetails');
+let postDetails = require('../Model/postDetails');
 let auth = require('../routes/auth');
 
 //CREATE A POST
@@ -9,10 +9,7 @@ router.post('/' ,auth ,async (req,res) => {
     try{
             let userCount = await postDetails.countDocuments({userId : req.body.userId });
             let userName = await userDetails.findOne({_id : req.body.userId},{userName : 1});
-            console.log("usercount :",userCount);
-            
             userName = userName.userName + (userCount+1);
-            console.log("username : ", userName);
             let newPost = new postDetails({
                 _id : userName ,
                 userId : req.body.userId ,
@@ -22,7 +19,7 @@ router.post('/' ,auth ,async (req,res) => {
             await newPost.save();
             res.status(201).json({message : "Status posted successfully"});
     } catch (err){
-        res.status(500).json({message : err});
+        res.status(500).json({error : err.errors.status.message});
     }
 });
 
@@ -40,7 +37,7 @@ router.post('/like' ,auth,async (req,res) => {
             }
         }
         else{
-            res.status(400).json({message:"No such post to Like"});
+            res.status(400).json({error:"No such post to Like"});
         }
     }
     catch (err) {
@@ -49,7 +46,7 @@ router.post('/like' ,auth,async (req,res) => {
 });
 
 //Get Status Information
-router.get('/statusInformation' ,async (req,res) => {
+router.get('/statusInformation' ,auth ,async (req,res) => {
     if(!req.body.postId){
         res.status(400).json({message : "Please enter status ID"});
     }
@@ -64,7 +61,7 @@ router.get('/statusInformation' ,async (req,res) => {
             }
             res.status(200).json(statusInformation);
         }catch (err) {
-            res.status(500).json({message : err});
+            res.status(500).json({error : err});
         }
     }
 });
