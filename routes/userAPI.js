@@ -4,8 +4,8 @@ let router = express.Router();
 let validator = require("email-validator");
 let jwt = require('jsonwebtoken');
 require('dotenv/config');
-let postDetails = require('../model/postDetails');
-let userDetails = require('../model/userDetails');
+let postDetails = require('../Model/postDetails');
+let userDetails = require('../Model/userDetails');
 let auth = require('../routes/auth');
 
 //USER SIGNUP
@@ -46,19 +46,19 @@ router.post('/signup' ,async (req,res) => {
                     await signupNew.save() 
                     res.status(201).json({USERNAME : userName , PASSWORD : password });
                     } catch (err) {
-                        res.status(500).json({message : err.message});
+                        res.status(500).json({error : err.message});
                     }
             }
             else{
-                res.status(400).json({message : "Please enter a valid emailID to Signup"});
+                res.status(400).json({error : "Please enter a valid emailID to Signup"});
             }
         }
         else{
-            res.status(400).json({message : "Email ID / DOB not given in data"});
+            res.status(400).json({error : "Email ID / DOB not given in data"});
         }
     }
     catch(err) {
-        res.status(400).json({message:err.message});
+        res.status(400).json({error :err.message});
     }  
 });
 
@@ -81,12 +81,12 @@ router.get('/login' ,async (req,res) => {
                     res.header('auth-token',token).send(msg);
                 }
                 else {
-                    res.status(401).json({message : "Password Incorrect"});
+                    res.status(401).json({error : "Password Incorrect"});
                 }
             }
         }
         else{
-            res.status(400).json({message : "User not found! Invalid emailID"});
+            res.status(400).json({error : "User not found! Invalid emailID"});
         }
     }
     else if(req.body.userName){
@@ -96,7 +96,8 @@ router.get('/login' ,async (req,res) => {
                 if(req.body.password === checkUserFromDBUsingUsername.password){
                     let token = jwt.sign(
                         {_id: checkUserFromDBUsingUsername._id},
-                        process.env.TOKEN_SECRET
+                        process.env.TOKEN_SECRET , 
+                        {expiresIn : 60*10}
                     );
                     msg = {
                         message : "Login Successfull" ,
@@ -105,12 +106,12 @@ router.get('/login' ,async (req,res) => {
                     res.header('auth-token',token).send(msg);
                 }
                 else {
-                    res.status(401).json({message : "Password Incorrect"});
+                    res.status(401).json({error : "Password Incorrect"});
                 }
             }
         }
         else{
-            res.status(400).json({message : "User not found! Invalid Username"});
+            res.status(400).json({error  : "User not found! Invalid Username"});
         }
     }
 });
@@ -118,16 +119,19 @@ router.get('/login' ,async (req,res) => {
 //UPDATING PASSWORD
 router.patch('/updatePassword', auth ,async (req,res) => {
     if(!req.body.userName){
-        res.status(400).json({message : "userName is required"});
+        res.status(400).json({error : "userName is required"});
     }
     else if(!req.body.oldPassword){
-        res.status(400).json({message : "OldPassword is required to update"});
+        res.status(400).json({error : "OldPassword is required to update"});
     }
     else if(!req.body.newPassword){
-        res.status(400).json({message : "Please enter NewPassword"});
+        res.status(400).json({error : "Please enter NewPassword"});
     }
     else if(req.body.oldPassword === req.body.newPassword){
-        res.status(400).json({message : "OldPassword and NewPassword are same"});
+        res.status(400).json({error : "OldPassword and NewPassword are same"});
+    }
+    else if (req.body.newPassword.length <=6 ){
+        res.status(400).json({error : "Password should be atleast of 6 characters"});
     }
     else{
         const validUser = await userDetails.findOne({userName : req.body.userName ,password : req.body.oldPassword});
@@ -140,11 +144,11 @@ router.patch('/updatePassword', auth ,async (req,res) => {
                 res.status(200).json({message : "Password updated successfully"});
             }
             catch (err){
-                res.status(500).json({message : err});
+                res.status(500).json({error : err.message});
             }
         }
         else{
-            res.status(400).json({message : "User not found! Invalid Credentials"});
+            res.status(400).json({error : "User not found! Invalid Credentials"});
         }
     }
 });
@@ -153,7 +157,7 @@ router.patch('/updatePassword', auth ,async (req,res) => {
 //UPDATING ANY INFORMATION
 router.patch('/updateUserInformation' ,auth , async (req,res) => {
     if(!req.body.userName){
-        res.status(400).json({message : "userName is required"})
+        res.status(400).json({error : "userName is required"})
     }
     else{
         const validUser = await userDetails.findOne({userName : req.body.userName ,password : req.body.password});
@@ -165,11 +169,11 @@ router.patch('/updateUserInformation' ,auth , async (req,res) => {
                 res.status(200).json({message : "User Details Updated Successfully"});
             }
             catch (err) {
-                res.status(500).json({message : err});
+                res.status(500).json({message : err.message});
             }
         }
         else{
-            res.status(400).json({message : "User not found! Invalid Credentials"});
+            res.status(400).json({error : "User not found! Invalid Credentials"});
         }
     }
 });
@@ -181,18 +185,18 @@ router.delete('/deleteUser' ,auth, async (req,res) => {
         res.status(400).json({message : "userName is required"});
     }
     else{
-        const validUser = await userDetails.findOne({userName : req.body.userName ,password : req.body.password});
+        const validUser = await userDetails.findOne({userName : req.body.userName });
         if(validUser){
             try{
                 await userDetails.deleteOne({userName : req.body.userName });
                 res.status(200).json({message : "User removed successfully"});
             }
             catch (err){
-                res.status(500).json({message : err});
+                res.status(500).json({error : err.message});
             }
         }
         else{
-            return res.status(400).json({message : "User not found! Invalid Credentials"});
+            return res.status(400).json({error : "User not found! Invalid Credentials"});
         }
     }
 });
@@ -241,15 +245,15 @@ router.get('/userInformation' ,auth, async (req,res) => {
 
             res.status(200).json(userInformation);
         } catch (err) {
-            res.status(500).json({message : err});
+            res.status(500).json({message : err.message});
         }
     }
 });
 
 //SEARCH user
-router.get('/searchUser' ,async (req,res) => {
+router.get('/searchUser' ,auth ,async (req,res) => {
     if(!req.body.userName){
-        res.status(400).json({message : "Please enter username"});
+        res.status(400).json({error : "Please enter username"});
     }
     else{
         try{
@@ -259,25 +263,25 @@ router.get('/searchUser' ,async (req,res) => {
             for (let i=0; i<user.length ;i++){
                 usernameArray.push(user[i].userName)
             }
-            res.json(usernameArray);
+            res.json({searchResults : usernameArray});
         } catch (err) {
-            res.json({message : err});
+            res.json({error : err.message});
         }
     }
 });
 
 //users above AGE 18+ 
-router.get('/usersAboveAge18' ,auth, async (req,res) => {
+router.get('/usersAboveAge18' , auth ,async (req,res) => {
     try{
         let user = await userDetails.find({"personalInformation.age" : {"$gte" : 18}});
         usernameArray = [];
         for (let i=0; i<user.length ;i++){
             usernameArray.push(user[i].userName)
         }
-        res.status(200).json(usernameArray);
+        res.status(200).json({usersAboveAge18 : usernameArray});
     }
     catch (err) {
-        res.status(500).json({message : err});
+        res.status(500).json({error : err.message});
     }
 });
 
@@ -292,5 +296,7 @@ function calculateAge(DOB){
 function emailValidator(email){
     return validator.validate(email);
 }
+
+//
 
 module.exports = router;
