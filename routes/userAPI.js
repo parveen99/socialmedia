@@ -160,7 +160,7 @@ router.patch('/updateUserInformation' ,auth , async (req,res) => {
         res.status(400).json({error : "userName is required"})
     }
     else{
-        const validUser = await userDetails.findOne({userName : req.body.userName ,password : req.body.password});
+        const validUser = await userDetails.findOne({userName : req.body.userName});
         if(validUser){
             try{
                 await userDetails.findOneAndUpdate(
