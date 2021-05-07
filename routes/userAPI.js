@@ -71,7 +71,8 @@ router.get('/login' ,async (req,res) => {
                 if(req.body.password === checkUserFromDBUsingEmail.password){
                     let token = jwt.sign(
                         {_id: checkUserFromDBUsingEmail._id},
-                        process.env.TOKEN_SECRET
+                        process.env.TOKEN_SECRET,
+                        {expiresIn : 60*10}
                     );
 
                     msg = {
