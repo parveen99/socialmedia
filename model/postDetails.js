@@ -1,6 +1,4 @@
 const mongoose = require('mongoose');
-//const userschema = require('./userDetails');
-//ObjectId = userschema.ObjectId;
 const postschema = mongoose.Schema({
     _id :{
         type : String
